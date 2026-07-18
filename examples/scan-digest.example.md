@@ -1,26 +1,21 @@
-# Example scan digest (sanitized real output)
+# Example scan digest (sanitized real output, v2 format)
 
-> Scan window: last 14 days, 2 repos.
+> Scan window: since last scan tag, 2 repos.
 >
-> **Lessons added to pool (10):**
-> 1. Refused a 50% cost cut on the user-facing path: Batch API is ~24h turnaround and latency IS the product (D-055)
-> 2. The cost optimization CAUSED a data gap: cache-hit users stranded at a partial enrichment tier; fix cost $0 (d6c0e7c)
-> 3. Batch run failed at the END, after 100% of LLM spend: idle DB socket dropped by the platform proxy (e8e75ed)
-> 4. Cross-cutting invariant enforced by hand-copied WHERE clause leaked on the first attempt: 3 places implemented, 7 missed (4d3beac)
-> 5. Default 5s transaction timeout: a ~200-item write died at 5.3s; latent bug only large accounts would find (c53f53f)
-> 6. "Generated view" with no generator: an LLM re-authoring pass churned 148 lines on a prose-only change (f613245)
-> 7. Ranked ideas on a rubric, then overrode the top score in writing, reasons logged (IDEAS.md:47)
-> 8. Source-quality ranking as a written rule; two ideas killed on citation alone (STRATEGY.md:38)
-> 9. Shipped a knowingly-inert iOS entitlement at 14:30, stripped it at 15:27 (1679da5 -> bb2202e)
-> 10. A hardcoded credibility promise forced a better data model than a free hand would have (D-056)
+> **Lessons added to pool (8). Each cites its artifacts; three shown:**
+> 1. Push-to-deploy silently died after a GitHub username rename: the deploy platform's linkage still pointed at the old org while the remote moved; 3 days stale before merge day exposed it. One CLI re-link fixed source and triggered a deploy (081e8cf, 6f72f4a)
+> 2. A reconciliation fix shipped with a reviewer-caught bug: the anchor only advanced on rounds that booked at least one event, so a zero-booking round permanently under-counted (delta-from-moving-snapshot vs running-deficit). Fix: store {counts, at}, not a bare count map (b6a290f, 64edb32)
+> 3. Two-stage rescue cascade (cheap fuzzy match, then LLM only on the ambiguous remainder): 82 flagged from 449 rejects, 3 false positives on founder review, and all 3 came from the fuzzy-only bucket; the LLM-confirmed bucket was 100% clean (34f68d0)
 >
-> **Opportunities appended to IMPROVEMENTS.md (7):**
-> 1. Real dashboard generator to replace the LLM re-authoring pass (evening)
-> 2. Stale-view detector for generated artifacts (hour)
-> 3. Blank-gate detector for empty spec sections (hour)
-> 4. Attach the consolidation run to a trigger that actually fires (hour)
-> 5. /fewer-permission-prompts pass on accreted settings (hour)
-> 6. Cross-repo link checker for doc references (hour)
-> 7. Permission allowlist audit (hour)
+> **Opportunities (structured; one shown in full):**
 >
-> **Flagged stale:** IMPROVEMENTS.md header claims weekly cadence; last touched 102 days ago. Cadence claim updated to "consolidated on each scan."
+> ### Build a deterministic dashboard generator
+> - Friction: dashboard.html claims to be a generated view but regeneration is an LLM re-authoring pass that drifts every time.
+> - Evidence: commit f613245 (prose-only sync churned 148/49 HTML lines vs 116 across all md sources, including unprompted CSS refactoring); README.md:18 ("never edit directly").
+> - Pattern: hand-maintained "generated" artifact.
+> - Recommendation: CREATE script build_dashboard.py: input the three md sources, output HTML via a fixed template; zero churn on prose-only changes.
+> - Effort: evening · Recurs: every content sync.
+>
+> Other verdicts this run: permission allowlist audit → USE /fewer-permission-prompts (already installed); blank kill-gate detector → CREATE (grep script; a gate went stale within 24h of being written); stale-view detector → resolved without a build (zero observed drift; folded into the generator entry).
+>
+> **Consolidation:** 1 done-item checkbox fixed; 2 entries resolved without building; 8 items untouched 100+ days flagged for a keep/kill call. Header cadence claim corrected to "consolidated on each /content-scan run."
