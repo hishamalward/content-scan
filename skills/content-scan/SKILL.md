@@ -23,10 +23,22 @@ You are harvesting two things from the user's repositories: (1) post-worthy less
    - New or changed docs: status/plan files, learning notes, IMPROVEMENTS.md, agent-instruction files (CLAUDE.md and similar), postmortems.
    - Friction markers: repeated manual steps, TODO/HACK comments added in the window.
 3. Extract LESSONS. The quality bar: concrete, quantified, non-obvious. Each lesson needs the thing that happened, the number or specific detail that makes it real, and why a builder audience would care. Generic takes ("testing is important") are not lessons; discard them.
-4. Extract OPPORTUNITIES: friction that a skill, MCP server, hook, or automation would remove. Estimate effort (hour / evening / weekend).
+4. Extract OPPORTUNITIES, with pattern recognition, in three passes:
+   a. Collect friction candidates: repeated manual steps, TODO/HACK comments, copy-paste rituals, "generated" artifacts maintained by hand, cadence promises that lapsed.
+   b. Recognize patterns: for each candidate, look across ALL scanned repos and beyond the current window for recurrences of the same friction class. A friction that occurred once is a note for the digest, not an opportunity; tooling is justified by recurrence.
+   c. Check what already exists before recommending anything new: list the user's installed skills (~/.claude/skills/), project commands (.claude/commands/), and installed plugins. If existing tooling covers the friction, the recommendation is USE (name it), not CREATE.
 5. Write results:
    - Lessons: append as new rows to the CONTENT_POOL table (status: seed; source: content-scan YYYY-MM-DD plus the commit/doc reference). Dedupe against existing rows and drafted content first.
-   - Opportunities: per the IMPROVEMENTS convention.
+   - Opportunities: per the IMPROVEMENTS convention, one structured block each (brevity was tried and produced entries too thin to act on):
+
+     ```
+     ### <short imperative name>
+     - Friction: what keeps happening, one sentence
+     - Evidence: 2+ concrete occurrences (commits, files, dates); same citation rule as lessons
+     - Pattern: the friction class (manual sync, repeated lookup, missing gate, copy-paste ritual, hand-maintained "generated" artifact)
+     - Recommendation: USE <existing skill/tool> | CREATE skill <proposed name: trigger, inputs, outputs, 3-line behavior sketch> | hook | MCP server | script
+     - Effort: hour / evening / weekend · Recurs: how often the friction actually bites
+     ```
 6. Consolidate each touched IMPROVEMENTS.md while you are there (calendar cadences do not survive contact with life; consolidation runs whenever the scan runs): dedupe and merge near-duplicates, mark since-implemented items done with a pointer to the evidence, flag items untouched 60+ days for a keep/kill decision, and re-rank open items (quick wins first, then by friction frequency).
 7. Reply with a compact digest: N lessons added (one line each), N opportunities (one line each), plus any flagged stale items.
 
